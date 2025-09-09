@@ -9,7 +9,7 @@ const Thing = require('./models/Thing');
 const app = express();
 
 // connection to a MongoDB database using mongoose
-mongoose.connect('mongodb+srv://delery06_db_user:S0KpvTWhA85TMsxB@cluster0.nowhbfh.mongodb.net/test?retryWrites=true&w=majority',
+mongoose.connect('mongodb+srv://<USER>:<PASSWORD>@cluster0.nowhbfh.mongodb.net/test?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
