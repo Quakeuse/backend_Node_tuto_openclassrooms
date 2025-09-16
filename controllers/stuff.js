@@ -2,6 +2,13 @@ const { userInfo } = require('os');
 const Thing = require('../models/thing');
 const fs = require('fs');
 
+// Controller for the GET method (all items)
+exports.getAllStuff = (req, res, next) => {
+  Thing.find()
+    .then(things => res.status(200).json(things))
+    .catch(error => res.status(400).json({ error }));
+}; 
+
 // Controller for the POST method
 exports.createThing = (req, res, next) => {
    const thingObject = JSON.parse(req.body.thing);
@@ -12,7 +19,6 @@ exports.createThing = (req, res, next) => {
        userId: req.auth.userId,
        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
    });
- 
    thing.save()
    .then(() => { res.status(201).json({message: 'Objet enregistré !'})})
    .catch(error => { res.status(400).json( { error })})
@@ -43,10 +49,25 @@ exports.modifyThing = (req, res, next) => {
 
 // Controller for the DELETE method
 exports.deleteThing = (req, res, next) => {
-Thing.deleteOne({ _id: req.params.id })
-    .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
-    .catch(error => res.status(400).json({ error }));
+    Thing.findOne({ _id: req.params.id })
+        .then(thing => {
+            if(thing.userId != req.auth.userId) {
+                res.status(401).json({ message : 'Non autorisé' });
+            } else {
+                const filename = thing.imageUrl.split('/images/')[1];
+                fs.unlink(`images/${filename}`, () => {
+                    Thing.deleteOne({ _id: req.params.id })
+                        .then(() => { res.status(200).json({ message: 'Objet supprimé !'})})
+                        .catch(error => res.status(401).json({ error }));
+                });
+            }
+            res.status(200).json(thing)
+        })
+        .catch(error => {
+            res.status(404).json({ error })
+        });   
 };
+
 
 // Controller for the GET method (single item)
 exports.getOneThing = (req, res, next) => {
@@ -54,10 +75,3 @@ exports.getOneThing = (req, res, next) => {
     .then(thing => res.status(200).json(thing))
     .catch(error => res.status(404).json({ error }));
 };
-
-// Controller for the GET method (all items)
-exports.getAllStuff = (req, res, next) => {
-  Thing.find()
-    .then(things => res.status(200).json(things))
-    .catch(error => res.status(400).json({ error }));
-}; 

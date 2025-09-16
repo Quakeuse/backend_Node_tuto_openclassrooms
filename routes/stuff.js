@@ -6,11 +6,11 @@ const multer = require('../middleware/multer-config');
 
 const stuffCtrl = require('../controllers/stuff');
 
-router.get('/', auth, stuffCtrl.getAllStuff);
-router.post('/', auth, multer, stuffCtrl.createThing);
-router.get('/:id', auth, stuffCtrl.getOneThing);
-router.put('/:id', auth, multer, stuffCtrl.modifyThing);
-router.delete('/:id', auth, stuffCtrl.deleteThing);
+router.get('/', stuffCtrl.getAllStuff);
+router.get('/:id', stuffCtrl.getOneThing);
+router.post('/', multer, stuffCtrl.createThing);
+router.put('/:id', multer, stuffCtrl.modifyThing);
+router.delete('/:id', stuffCtrl.deleteThing);
 
 // to export this app to access it from the other files and specially the server Node
 module.exports = router;
